@@ -1,3 +1,4 @@
+using LiteDB;
 using System.Net;
 using Telegram.Bot;
 
@@ -13,12 +14,14 @@ internal static class Global
     public static readonly Config Config;
     public static readonly I18nHelper I18n;
     public static readonly TelegramBotClient BotClient;
+    public static readonly LiteDatabase Database;
 
     static Global()
     {
         Config config = Config.GetFromFile(ConfigFilePath) ?? throw new NullReferenceException();
         Config = config;
         I18n = new(LanguagePackPath);
+        Database = new(CountDatabasePath);
         BotClient = new(Config.Token,
             string.IsNullOrWhiteSpace(Config.ProxyUrl)
                 ? default

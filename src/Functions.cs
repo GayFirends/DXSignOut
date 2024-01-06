@@ -70,9 +70,8 @@ internal static class Functions
         Internationalization lang = Global.I18n.GetI18n(message.From.LanguageCode);
         Account account = new(maiId);
         Response? data;
-        using LiteDatabase database = new(Global.CountDatabasePath);
         ILiteCollection<HistoryData> dataCollection =
-            database.GetCollection<HistoryData>(HashHelper.GetFromString(message.Chat.Id));
+            Global.Database.GetCollection<HistoryData>(HashHelper.GetFromString(message.Chat.Id));
         Message sentMessage = await Global.BotClient.SendTextMessageAsync(message.Chat.Id, lang["Processing"],
             message.MessageThreadId, ParseMode.MarkdownV2, replyToMessageId: message.MessageId);
         try
