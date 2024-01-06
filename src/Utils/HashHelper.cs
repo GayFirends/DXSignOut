@@ -11,9 +11,9 @@ internal static class HashHelper
         StringBuilder stringBuilder = new();
         foreach (byte hash in hashBytes)
         {
-            stringBuilder.Append($"{hash:x2}");
+            stringBuilder.Append(Convert.ToChar('a' + hash / 16));
+            stringBuilder.Append(Convert.ToChar('a' + hash % 16));
         }
-
         return stringBuilder.ToString();
     }
 
@@ -26,11 +26,6 @@ internal static class HashHelper
     public static string GetFromString(object obj)
     {
         string? str = obj.ToString();
-        if (str is null)
-        {
-            throw new NullReferenceException();
-        }
-
-        return GetFromString(str);
+        return str is null ? throw new NullReferenceException() : GetFromString(str);
     }
 }
