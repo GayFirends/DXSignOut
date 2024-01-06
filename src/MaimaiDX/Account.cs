@@ -27,12 +27,12 @@ internal class Account
                 new() { Data = _id });
         try
         {
-            Response? data = await response.Content.ReadFromJsonAsync<Response>();
+            Response? data = await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Response>();
             return data ?? throw new NullReferenceException();
         }
         catch (JsonException ex)
         {
-            throw new FileNotFoundException(await response.Content.ReadAsStringAsync(), ex);
+            throw new HttpRequestException(await response.Content.ReadAsStringAsync(), ex);
         }
     }
 }
