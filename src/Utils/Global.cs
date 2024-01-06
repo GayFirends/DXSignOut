@@ -6,7 +6,6 @@ namespace DxSignOut.Utils;
 internal static class Global
 {
     public const string ExceptionLoggingPath = "./Exception.log";
-    public const string CachePath = "./Cache/";
     public const string CountDatabasePath = "./History.db";
     public const string ConfigFilePath = "./Config.json";
     public const string LanguagePackPath = "./LanguagePack/";

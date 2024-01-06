@@ -21,9 +21,7 @@ internal static class Functions
             FileInfo file = await Global.BotClient.GetFileAsync(message.Photo[0].FileId);
             if (file.FilePath is not null)
             {
-                DirectoryInfo dir =
-                    FileHelper.CheckDir(Path.Combine(Global.CachePath, HashHelper.GetFromString(message.Chat.Id)));
-                string path = Path.Combine(dir.FullName, Path.GetFileName(file.FilePath));
+                string path = Path.GetTempFileName();
                 string? maiId;
                 try
                 {
@@ -36,7 +34,7 @@ internal static class Functions
                 }
                 finally
                 {
-                    dir.Delete(true);
+                    File.Delete(path);
                 }
 
                 if (maiId is not null)
