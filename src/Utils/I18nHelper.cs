@@ -18,12 +18,7 @@ internal class I18nHelper
             Dictionary<string, string>? kv =
                 JsonSerializer.Deserialize<Dictionary<string, string>>(
                     FileHelper.CheckFile(file.FullName, defaultValue));
-            if (kv is null)
-            {
-                throw new NullReferenceException();
-            }
-
-            this[Path.GetFileNameWithoutExtension(file.Name)] = new(kv);
+            this[Path.GetFileNameWithoutExtension(file.Name)] = new(kv ?? throw new NullReferenceException());
         }
     }
 

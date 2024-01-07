@@ -36,7 +36,7 @@ Global.BotClient.StartReceiving(async (_, update, cancellationToken) =>
             }
             default:
             {
-                throw new InvalidDataException();
+                throw new NotSupportedException();
             }
         }
     }

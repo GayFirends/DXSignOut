@@ -14,8 +14,12 @@ internal static class Functions
 {
     public static async Task OnReceived(this Message message)
     {
-        Task? signOutTask1 = default;
-        Task? signOutTask2 = default;
+        List<Task> signOutTasks = [];
+        if (message.Text is not null)
+        {
+            signOutTasks.Add(StartSignOut(message, message.Text));
+        }
+
         if (message.Photo is not null && message.Photo.Length > 0)
         {
             FileInfo file = await Global.BotClient.GetFileAsync(message.Photo[0].FileId);
@@ -39,25 +43,12 @@ internal static class Functions
 
                 if (maiId is not null)
                 {
-                    signOutTask1 = StartSignOut(message, maiId);
+                    signOutTasks.Add(StartSignOut(message, maiId));
                 }
             }
         }
 
-        if (message.Text is not null)
-        {
-            signOutTask2 = StartSignOut(message, message.Text);
-        }
-
-        if (signOutTask1 is not null)
-        {
-            await signOutTask1;
-        }
-
-        if (signOutTask2 is not null)
-        {
-            await signOutTask2;
-        }
+        Task.WaitAll([..signOutTasks]);
     }
 
     private static async Task StartSignOut(Message message, string maiId)
@@ -70,8 +61,8 @@ internal static class Functions
         Internationalization lang = Global.I18n.GetI18n(message.From.LanguageCode);
         Account account = new(maiId);
         Response? data;
-        ILiteCollection<HistoryData> dataCollection =
-            Global.Database.GetCollection<HistoryData>(HashHelper.GetFromString(message.Chat.Id));
+        string hash = HashHelper.GetFromString(message.Chat.Id);
+        ILiteCollection<HistoryData> dataCollection = Global.Database.GetCollection<HistoryData>(hash);
         Message sentMessage = await Global.BotClient.SendTextMessageAsync(message.Chat.Id, lang["Processing"],
             message.MessageThreadId, ParseMode.MarkdownV2, replyToMessageId: message.MessageId);
         try

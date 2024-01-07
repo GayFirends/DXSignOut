@@ -14,6 +14,7 @@ internal static class HashHelper
             stringBuilder.Append(Convert.ToChar('a' + hash / 16));
             stringBuilder.Append(Convert.ToChar('a' + hash % 16));
         }
+
         return stringBuilder.ToString();
     }
 
@@ -26,6 +27,6 @@ internal static class HashHelper
     public static string GetFromString(object obj)
     {
         string? str = obj.ToString();
-        return str is null ? throw new NullReferenceException() : GetFromString(str);
+        return GetFromString(str ?? throw new NullReferenceException());
     }
 }

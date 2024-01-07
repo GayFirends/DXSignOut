@@ -1,8 +1,8 @@
 using SkiaSharp;
+using System.Runtime.Serialization;
 using ZXing;
 using ZXing.Common;
 using ZXing.QrCode;
-using FormatException = System.FormatException;
 
 namespace DxSignOut.Utils;
 
@@ -14,7 +14,7 @@ internal static class QrCodeHelper
         using SKBitmap? sKBitmap = SKBitmap.Decode(fileStream);
         if (sKBitmap is null || sKBitmap.IsEmpty)
         {
-            throw new FormatException();
+            throw new SerializationException();
         }
 
         int w = sKBitmap.Width;
@@ -38,6 +38,6 @@ internal static class QrCodeHelper
         BinaryBitmap binaryBitmap = new(hybridBinarizer);
         QRCodeReader qRCodeReader = new();
         Result result = qRCodeReader.decode(binaryBitmap);
-        return result is null ? throw new NullReferenceException() : result.Text;
+        return result is null ? throw new SerializationException() : result.Text;
     }
 }

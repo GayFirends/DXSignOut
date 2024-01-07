@@ -22,17 +22,18 @@ internal class Account
     public async Task<Response> SignOutAsync()
     {
         using HttpClient client = new();
-        using HttpResponseMessage response =
-            await client.PostAsJsonAsync<Request>(string.Format(Global.Config.SignOutApiUrl, _id),
-                new() { Data = _id });
+        string url = string.Format(Global.Config.SignOutApiUrl, _id);
+        Request requestData = new() { Data = _id };
+        using HttpResponseMessage response = await client.PostAsJsonAsync(url, requestData);
         try
         {
-            Response? data = await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Response>();
-            return data ?? throw new NullReferenceException();
+            return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Response>() ??
+                   throw new NullReferenceException();
         }
         catch (JsonException ex)
         {
-            throw new HttpRequestException(await response.Content.ReadAsStringAsync(), ex);
+            string request = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException(request, ex);
         }
     }
 }
