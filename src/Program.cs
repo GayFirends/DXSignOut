@@ -3,7 +3,7 @@ using DxSignOut.Utils;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
-Global.BotClient.StartReceiving(async (_, update, cancellationToken) =>
+Config.BotClient.StartReceiving(async (_, update, cancellationToken) =>
 {
     try
     {
@@ -24,26 +24,25 @@ Global.BotClient.StartReceiving(async (_, update, cancellationToken) =>
             case UpdateType.ChatMember:
             case UpdateType.ChatJoinRequest:
             case UpdateType.Message when update.Message?.Type is not (MessageType.Text or MessageType.Photo) ||
-                                         update.Message.From is null ||
-                                         update.Message.Chat.Id != update.Message.From.Id:
-            {
-                break;
-            }
+                                         update.Message.Chat.Id != update.Message.From?.Id:
+                {
+                    break;
+                }
             case UpdateType.Message:
-            {
-                await update.Message.OnReceived();
-                break;
-            }
+                {
+                    await update.Message.OnReceived();
+                    break;
+                }
             default:
-            {
-                throw new NotSupportedException();
-            }
+                {
+                    throw new NotSupportedException();
+                }
         }
     }
     catch (Exception ex)
     {
-        await File.AppendAllTextAsync(Global.ExceptionLoggingPath,
-            $"{(File.Exists(Global.ExceptionLoggingPath) ? '\n' : string.Empty)}[{DateTime.Now}] {ex}",
+        await File.AppendAllTextAsync(Config.ExceptionLoggingPath,
+            $"{(File.Exists(Config.ExceptionLoggingPath) ? '\n' : string.Empty)}[{DateTime.Now}] {ex}",
             cancellationToken);
     }
 }, (_, _, _) => { });

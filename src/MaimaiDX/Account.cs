@@ -11,7 +11,7 @@ internal class Account
 
     public Account(string id)
     {
-        if (id.Length is not 84 || !id.StartsWith(Global.IdStart))
+        if (id.Length is not 84 || !id.StartsWith(Config.IdStart))
         {
             throw new ArgumentException(id);
         }
@@ -22,7 +22,7 @@ internal class Account
     public async Task<Response> SignOutAsync()
     {
         using HttpClient client = new();
-        string url = string.Format(Global.Config.SignOutApiUrl, _id);
+        string url = string.Format(Config.Shared.SignOutApiUrl, _id);
         Request requestData = new() { Data = _id };
         using HttpResponseMessage response = await client.PostAsJsonAsync(url, requestData);
         try

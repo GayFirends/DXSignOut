@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace DxSignOut.Utils;
 
-internal class I18nHelper
+public class I18nHelper
 {
     private readonly Dictionary<string, Internationalization> _language;
 
@@ -50,7 +50,7 @@ internal class I18nHelper
 
     public Internationalization GetI18n(string? languageCode)
     {
-        return Global.Config.EnableAutoI18n && !string.IsNullOrEmpty(languageCode)
+        return Config.Shared.EnableAutoI18n && !string.IsNullOrEmpty(languageCode)
             ? TryGetLanguageData(languageCode, out Internationalization? value)
                 ? value
                 : this[CultureInfo.CurrentCulture.Name]
