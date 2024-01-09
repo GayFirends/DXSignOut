@@ -2,6 +2,7 @@ using DxSignOut.MaimaiDX;
 using DxSignOut.MaimaiDX.Packet;
 using DxSignOut.Utils;
 using LiteDB;
+using System.Diagnostics;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -23,7 +24,7 @@ internal static class Functions
         List<Task> signOutTasks = [];
         if (message.Text is not null)
         {
-            signOutTasks.Add(StartSignOut(lang, message.Chat.Id, message.MessageId, message.Date, message.Text));
+            signOutTasks.Add(StartSignOut(lang, message.Chat.Id, message.MessageId, message.Text));
         }
 
         if (message.Photo is not null && message.Photo.Length > 0)
@@ -49,7 +50,7 @@ internal static class Functions
 
                 if (maiId is not null)
                 {
-                    signOutTasks.Add(StartSignOut(lang, message.Chat.Id, message.MessageId, message.Date, maiId));
+                    signOutTasks.Add(StartSignOut(lang, message.Chat.Id, message.MessageId, maiId));
                 }
             }
         }
@@ -57,8 +58,7 @@ internal static class Functions
         Task.WaitAll([.. signOutTasks]);
     }
 
-    private static async Task StartSignOut(Internationalization lang, long userId, int messageId, DateTime sendTime,
-        string maiId)
+    private static async Task StartSignOut(Internationalization lang, long userId, int messageId, string maiId)
     {
         if (int.TryParse(maiId, out _) && maiId.Length is 8)
         {
@@ -71,28 +71,35 @@ internal static class Functions
         Response? data;
         string hash = HashHelper.GetFromString(userId);
         ILiteCollection<HistoryData> dataCollection = Config.Database.GetCollection<HistoryData>(hash);
-        Message sentMessage = await Config.BotClient.SendTextMessageAsync(userId, lang["Processing"],
+        Message sentMessage = await Config.BotClient.SendTextMessageAsync(userId, lang["Requesting"],
             parseMode: ParseMode.MarkdownV2, replyToMessageId: messageId);
+        Stopwatch stopWatch = Stopwatch.StartNew();
         try
         {
             data = await account.SignOutAsync();
         }
         catch (Exception ex)
         {
+            stopWatch.Stop();
             await Config.BotClient.EditMessageTextAsync(userId, sentMessage.MessageId,
-                lang.Translate("Result", string.Empty, lang["Failed"]), ParseMode.MarkdownV2);
-            dataCollection.Insert(new HistoryData(sendTime, SignOutStatus.Failed));
+                lang.Translate("Result", string.Empty, lang["Failed"],
+                    lang.Translate("Minute", stopWatch.Elapsed.TotalMinutes),
+                    lang.Translate("Second", stopWatch.Elapsed.Seconds)), ParseMode.MarkdownV2);
+            dataCollection.Insert(new HistoryData(account.RequestTime, SignOutStatus.Failed, stopWatch.Elapsed));
             await File.AppendAllTextAsync(Config.ExceptionLoggingPath,
                 $"{(File.Exists(Config.ExceptionLoggingPath) ? '\n' : string.Empty)}[{DateTime.Now}] {ex}");
             return;
         }
 
+        stopWatch.Stop();
         await Config.BotClient.EditMessageTextAsync(userId, sentMessage.MessageId,
             lang.Translate("Result",
                 data.UserName is null or "null" ? string.Empty : lang.Translate("Account", data.UserName),
-                data.LogoutStatus switch { false => lang["MayFailed"], true => lang["Succeeded"] }),
-            ParseMode.MarkdownV2);
-        dataCollection.Insert(new HistoryData(sendTime,
-            data.LogoutStatus switch { false => SignOutStatus.MayFailed, true => SignOutStatus.Succeeded }));
+                data.LogoutStatus switch { false => lang["MayFailed"], true => lang["Succeeded"] },
+                lang.Translate("Minute", stopWatch.Elapsed.TotalMinutes),
+                lang.Translate("Second", stopWatch.Elapsed.Seconds)), ParseMode.MarkdownV2);
+        dataCollection.Insert(new HistoryData(account.RequestTime,
+            data.LogoutStatus switch { false => SignOutStatus.MayFailed, true => SignOutStatus.Succeeded },
+            stopWatch.Elapsed));
     }
 }

@@ -1,6 +1,6 @@
 namespace DxSignOut.Utils;
 
-internal record HistoryData(DateTime DateTime, SignOutStatus Status);
+internal record HistoryData(DateTime DateTime, SignOutStatus Status, TimeSpan SpendTime);
 
 internal enum SignOutStatus
 {

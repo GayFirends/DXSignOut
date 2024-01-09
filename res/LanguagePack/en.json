@@ -1,9 +1,0 @@
-{
-  "Processing": "Signing out...",
-  "Result": "{0} sign out {1}",
-  "Succeeded": "succeeded.",
-  "MayFailed": "may failed?",
-  "Failed": "failed!",
-  "Account": "Account {0}",
-  "IsUserId": "Please send an ID starting with \"{0}\""
-}

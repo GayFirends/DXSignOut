@@ -7,7 +7,10 @@ namespace DxSignOut.MaimaiDX;
 
 internal class Account
 {
-    private readonly string _id;
+    private readonly Request _request;
+    private readonly string _url;
+
+    public DateTime RequestTime;
 
     public Account(string id)
     {
@@ -16,15 +19,15 @@ internal class Account
             throw new ArgumentException(id);
         }
 
-        _id = id;
+        _url = string.Format(Config.Shared.SignOutApiUrl, id);
+        _request = new() { Data = id };
     }
 
     public async Task<Response> SignOutAsync()
     {
         using HttpClient client = new();
-        string url = string.Format(Config.Shared.SignOutApiUrl, _id);
-        Request requestData = new() { Data = _id };
-        using HttpResponseMessage response = await client.PostAsJsonAsync(url, requestData);
+        using HttpResponseMessage response = await client.PostAsJsonAsync(_url, _request);
+        RequestTime = DateTime.Now;
         try
         {
             return await response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Response>() ??
