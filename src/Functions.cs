@@ -57,8 +57,16 @@ internal static class Functions
         Task.WaitAll([.. signOutTasks]);
     }
 
-    private static async Task StartSignOut(Internationalization lang, long userId, int messageId, DateTime sendTime, string maiId)
+    private static async Task StartSignOut(Internationalization lang, long userId, int messageId, DateTime sendTime,
+        string maiId)
     {
+        if (int.TryParse(maiId, out _) && maiId.Length is 8)
+        {
+            await Config.BotClient.SendTextMessageAsync(userId, lang.Translate("IsUserId", Config.IdStart),
+                parseMode: ParseMode.MarkdownV2, replyToMessageId: messageId);
+            return;
+        }
+
         Account account = new(maiId);
         Response? data;
         string hash = HashHelper.GetFromString(userId);

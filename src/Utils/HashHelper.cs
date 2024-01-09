@@ -11,8 +11,8 @@ internal static class HashHelper
         StringBuilder stringBuilder = new();
         foreach (byte hash in hashBytes)
         {
-            stringBuilder.Append(Convert.ToChar('a' + (hash / 16)))
-                .Append(Convert.ToChar('a' + (hash % 16)));
+            stringBuilder.Append(Convert.ToChar('a' + hash / 16))
+                .Append(Convert.ToChar('a' + hash % 16));
         }
 
         return stringBuilder.ToString();

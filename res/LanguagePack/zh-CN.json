@@ -4,5 +4,6 @@
   "Succeeded": "成功。",
   "MayFailed": "可能未成功？",
   "Failed": "失败！",
-  "Account": "账号{0}"
+  "Account": "账号{0}",
+  "IsUserId": "请发送以“{0}”开头的ID"
 }
