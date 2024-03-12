@@ -4,13 +4,12 @@ using System.Text.Json;
 
 namespace DxSignOut.Utils;
 
-public class I18nHelper
+internal class L10nProvider
 {
-    private readonly Dictionary<string, Internationalization> _language;
+    private readonly Dictionary<string, Localizer> _language = new();
 
-    public I18nHelper(string path)
+    public L10nProvider(string path)
     {
-        _language = [];
         DirectoryInfo langFileDir = FileHelper.CheckDir(path);
         string defaultValue = JsonSerializer.Serialize(new Dictionary<string, string>());
         foreach (FileInfo file in langFileDir.GetFiles("*.json"))
@@ -18,42 +17,45 @@ public class I18nHelper
             Dictionary<string, string>? kv =
                 JsonSerializer.Deserialize<Dictionary<string, string>>(
                     FileHelper.CheckFile(file.FullName, defaultValue));
-            this[Path.GetFileNameWithoutExtension(file.Name)] = new(kv ?? throw new NullReferenceException());
+            if (kv is null)
+            {
+                continue;
+            }
+
+            this[Path.GetFileNameWithoutExtension(file.Name)] = new(kv);
         }
     }
 
-    public Internationalization this[string languageCode]
+    public Localizer this[string languageCode]
     {
         get
         {
-            if (TryGetLanguageData(languageCode, out Internationalization? languageData))
+            if (TryGetLanguageData(languageCode, out Localizer? languageData))
             {
                 return languageData;
             }
 
-            Internationalization data = new(new Dictionary<string, string>());
+            Localizer data = new(new Dictionary<string, string>());
             _language[languageCode] = data;
             return data;
         }
         init => AddLanguage(languageCode, value);
     }
 
-    public bool TryGetLanguageData(string languageCode, [NotNullWhen(true)] out Internationalization? languageData)
+    public bool TryGetLanguageData(string languageCode, [NotNullWhen(true)] out Localizer? languageData)
     {
         return _language.TryGetValue(languageCode, out languageData);
     }
 
-    public void AddLanguage(string languageCode, Internationalization languageData)
+    public void AddLanguage(string languageCode, Localizer languageData)
     {
         _language[languageCode] = languageData;
     }
 
-    public Internationalization GetI18n(string? languageCode)
+    public Localizer GetLocalizer(string? languageCode)
     {
-        return Config.Shared.EnableAutoI18n && !string.IsNullOrEmpty(languageCode)
-            ? TryGetLanguageData(languageCode, out Internationalization? value)
-                ? value
-                : this[CultureInfo.CurrentCulture.Name]
+        return Config.Shared.EnableAutoL10n && !string.IsNullOrEmpty(languageCode)
+            ? TryGetLanguageData(languageCode, out Localizer? value) ? value : this[CultureInfo.CurrentCulture.Name]
             : this[CultureInfo.CurrentCulture.Name];
     }
 }

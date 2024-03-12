@@ -20,7 +20,7 @@ internal class Account
         }
 
         _url = string.Format(Config.Shared.SignOutApiUrl, id);
-        _request = new() { Data = id };
+        _request = new(id);
     }
 
     public async Task<Response> SignOutAsync()

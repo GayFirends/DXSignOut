@@ -1,6 +1,6 @@
 namespace DxSignOut.Utils;
 
-public class Internationalization(IReadOnlyDictionary<string, string> langData)
+internal class Localizer(IReadOnlyDictionary<string, string> langData)
 {
     public string this[string languageCode] => Translate(languageCode);
 

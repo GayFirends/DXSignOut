@@ -20,7 +20,7 @@ internal static class Functions
             return;
         }
 
-        Internationalization lang = Config.I18n.GetI18n(message.From.LanguageCode);
+        Localizer lang = Config.L10n.GetLocalizer(message.From.LanguageCode);
         List<Task> signOutTasks = [];
         if (message.Text is not null)
         {
@@ -58,7 +58,7 @@ internal static class Functions
         Task.WaitAll([.. signOutTasks]);
     }
 
-    private static async Task StartSignOut(Internationalization lang, long userId, int messageId, string maiId)
+    private static async Task StartSignOut(Localizer lang, long userId, int messageId, string maiId)
     {
         if (int.TryParse(maiId, out _) && maiId.Length is 8)
         {

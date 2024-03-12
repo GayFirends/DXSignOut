@@ -5,28 +5,27 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace DxSignOut.Utils;
 
-public record Config(string Token, string ProxyUrl, bool EnableAutoI18n, string SignOutApiUrl)
+public record Config(string Token, string ProxyUrl, bool EnableAutoL10n, string SignOutApiUrl)
 {
-    public const string ExceptionLoggingPath = "./Exception.log";
-    public const string CountDatabasePath = "./History.db";
-    public const string ConfigFilePath = "./Config.json";
-    public const string LanguagePackPath = "./LanguagePack/";
-    public const string IdStart = "SGWCMAID";
-    public static readonly Config Shared;
-    public static readonly I18nHelper I18n;
-    public static readonly TelegramBotClient BotClient;
-    public static readonly LiteDatabase Database;
+    internal const string ExceptionLoggingPath = "./Exception.log";
+    internal const string CountDatabasePath = "./History.db";
+    internal const string ConfigFilePath = "./Config.json";
+    internal const string LanguagePackPath = "./LanguagePack/";
+    internal const string IdStart = "SGWCMAID";
+    internal static readonly Config Shared;
+    internal static readonly L10nProvider L10n;
+    internal static readonly TelegramBotClient BotClient;
+    internal static readonly LiteDatabase Database;
 
     static Config()
     {
-        Config config = GetFromFile(ConfigFilePath) ?? throw new NullReferenceException();
-        Shared = config;
-        I18n = new(LanguagePackPath);
-        Database = new(CountDatabasePath);
-        BotClient = new(config.Token,
-            string.IsNullOrWhiteSpace(config.ProxyUrl)
+        Shared = GetFromFile(ConfigFilePath) ?? throw new NullReferenceException();
+        L10n = new(LanguagePackPath);
+        BotClient = new(Shared.Token,
+            string.IsNullOrWhiteSpace(Shared.ProxyUrl)
                 ? default
-                : new(new HttpClientHandler { Proxy = new WebProxy(config.ProxyUrl, true) }));
+                : new(new HttpClientHandler { Proxy = new WebProxy(Shared.ProxyUrl, true) }));
+        Database = new(CountDatabasePath);
     }
 
     internal static Config? GetFromFile(string path)
